@@ -6,10 +6,14 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install Python dependencies
+          name: Install Python Dependencies
           command: |
             echo 'export PATH=~$PATH:~/.local/bin' >> $BASH_ENV && source $BASH_ENV
             pip install -r requirements.txt
+      - run:
+          name: Set Root Directory
+          command: |
+            export PYTHONPATH=src
       - run:
           name: Run Unit Test
           command: |
