@@ -39,4 +39,4 @@ jobs:
         export PYTHONPATH=src
     - name: Test with pytest
       run: |
-        pytest --record_path .
+        python3 -m pytest --record_path .
