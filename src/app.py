@@ -1,10 +1,14 @@
 import os, rpyc, random, argparse
 from logger import SystemLog
+from dialogue.script import ChatBrain
 
 class AutoLoop:
     def __init__(self, args):
         self.path = os.path.dirname(os.path.abspath(__file__))
         self.record_path = args.record_path
+
+        self.brainA = ChatBrain("A")
+        self.brainB = ChatBrain("B")
         return
     
     def main(self):
@@ -15,3 +19,4 @@ if __name__ == "__main__":
     parser.add_argument('--record_path', type=str, default=".", help="Record would be stored in here.")
     args = parser.parse_args()
     loop = AutoLoop(args)
+    loop.main()

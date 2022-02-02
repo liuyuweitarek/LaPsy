@@ -1,14 +1,25 @@
-import logging, os
+import logging, os, pathlib
+from datetime import datetime
+from cfg import SysPaths
 
 class SystemLog(object):
-    def __init__(self, name):
-        self.logger=logging.getLogger(name)
+    def __init__(self, module_name, commit=None):
+        if commit == None:
+            now = datetime.now()
+            self.commit = datetime.strftime(now,'%Y_%m_%d_%H_%M_%S')
+        else:
+            self.commit = commit        
+
+        self.logger=logging.getLogger(module_name)
         self.logger.setLevel(logging.DEBUG)
+        
+        self.log = '{0}{1}'.format(SysPaths.LOG_PATH, self.commit)
         
         format = '%(asctime)s - %(levelname)s - %(name)s:%(lineno)d : %(message)s'
         formatter = logging.Formatter(format)
-        
-        logfile = './debug.log'
+        pathlib.Path(self.log).mkdir(parents=True, exist_ok=True)
+
+        logfile = self.log + 'history.log'
         filehandler = logging.FileHandler(logfile)
         filehandler.setFormatter(formatter)
         self.logger.addHandler(filehandler)
