@@ -10,16 +10,16 @@ class SystemLog(object):
         else:
             self.commit = commit        
 
-        self.logger=logging.getLogger(module_name)
-        self.logger.setLevel(logging.DEBUG)
-        
         self.log = '{0}{1}'.format(SysPaths.LOG_PATH, self.commit)
+        pathlib.Path(self.log).mkdir(parents=True, exist_ok=True)
+        logfile = self.log + '/history.log'
         
+        self.logger=logging.getLogger("{0}:{1}".format(commit, module_name))
+        self.logger.setLevel(logging.DEBUG)
+         
         format = '%(asctime)s - %(levelname)s - %(name)s:%(lineno)d : %(message)s'
         formatter = logging.Formatter(format)
-        pathlib.Path(self.log).mkdir(parents=True, exist_ok=True)
-
-        logfile = self.log + 'history.log'
+        
         filehandler = logging.FileHandler(logfile)
         filehandler.setFormatter(formatter)
         self.logger.addHandler(filehandler)
