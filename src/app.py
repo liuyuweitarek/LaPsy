@@ -7,9 +7,8 @@ class AutoLoop:
         self.path = os.path.dirname(os.path.abspath(__file__))
         self.record_path = args.record_path
 
-        self.brain = ChatBrain("A")
-        
-        
+        self.brain = ChatBrain("TEST", ["basic_sequence.csv","memory_meta_mem.csv"])
+        self.brain.pack_brain()
         return
     
     def main(self):
