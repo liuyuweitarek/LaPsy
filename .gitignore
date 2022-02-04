@@ -1,6 +1,7 @@
 # System data
 LOG/
-agents/
+AGENTS/
+SCRIPTS/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
