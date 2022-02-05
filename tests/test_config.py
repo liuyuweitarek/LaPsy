@@ -1,5 +1,4 @@
-from logging import config
-from cfg import Agent
+from dialogue.cores import Agent
 import jsonpickle
 
 def test_UserConfig_Init():
