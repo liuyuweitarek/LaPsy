@@ -24,6 +24,8 @@ class SystemLog(object):
         filehandler = logging.FileHandler(logfile)
         filehandler.setFormatter(formatter)
         self.logger.addHandler(filehandler)
+    def exception(self, msg):
+        self.logger.exception(msg)
     def debug(self, msg):
         self.logger.debug(msg)
     def info(self, msg):
