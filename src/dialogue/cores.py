@@ -7,18 +7,25 @@ from entity.agent import Agent
 from dialogue.script_handdler import TwoPath_Handdler
 
 class ChatBrain:
-    def __init__(self, agentid, scripts=[]):
+    def __init__(self, agentid="TEST", scripts=[], chitchatbot='echo', model="textgo"):
         self.Log = SystemLog(self.__class__.__name__, commit=agentid)  
         
         # Built/Load Agent 
         self.agent_data_path = '{0}{1}/'.format(SysPaths.USER_DATA_STORE_PATH, agentid)        
         self.agent = self.build_agent(agentid, scripts)
 
-        self.script_handdler = TwoPath_Handdler(
-            use_scripts= scripts,
-            agent_data_path=self.agent_data_path, 
-            log=agentid)
+        self.load_strategy(name="twopath", chitchatbot=chitchatbot, model=model)
         
+    def load_strategy(self, **strategy):
+        if strategy.get('name',"twopath") == "twopath":
+            self.Log.info("Using Two path Strategy")
+            self.strategy_handler = TwoPath_Handdler(
+                                        use_scripts=self.agent.scripts,
+                                        use_bot = strategy.get('chitchatbot', 'echo'),
+                                        use_model = strategy.get('model','textgo'),
+                                        agent_data_path=self.agent_data_path, 
+                                        log=self.agent.id)
+
     def build_agent(self, agentid, scripts):
         if not pathlib.Path(self.agent_data_path).exists():
             self.Log.info(SysMsg.WELLCOME_MSG)
@@ -38,8 +45,9 @@ class ChatBrain:
         # Pack Agent
         util_obj2file(self.agent, self.agent_data_path + 'userconfig.json')
         # Pack Scripts 
-        self.script_handdler.pack()
+        self.strategy_handler.pack()
         return
     
     def getText(self, input_text):
+        self.strategy_handler.getText(input_text)
         return

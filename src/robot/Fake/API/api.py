@@ -20,8 +20,10 @@ class FakeError(StrEnum):
 
 class FakeAPI:
     def __init__(self, deafmode=False, log="TEST"):
-        self.Log = SystemLog(self.__class__.__name__, log)
+        self.agentid = log
+        self.Log = SystemLog(self.__class__.__name__, self.agentid)
         self.Log.debug("Connect to pseudo test robot interface...")
+        
         self.chatMaster = ChatMaster()
         self.deafmode = deafmode
         
@@ -51,11 +53,11 @@ class FakeAPI:
             if self.deafmode:
                 self.Log.debug("Random choose robot heard from {0}".format(_possible_heard_result))
             
-            _reply = random.choice(_possible_heard_result)
+            _reply = '{0};fake_wav.mp4'.format(random.choice(_possible_heard_result))
         
             self.Log.info("Robot heard: {0}".format(_reply))
         else:
-            _reply = "Not listening, keep speaking."                
+            _reply = "Keep speaking..."                
         return _reply
         
     def autochat_ready(self, state=None):

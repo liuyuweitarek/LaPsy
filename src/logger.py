@@ -4,6 +4,7 @@ from cfg import SysPaths
 
 class SystemLog(object):
     def __init__(self, module_name, commit=None):
+        
         if commit == None:
             now = datetime.now()
             self.commit = datetime.strftime(now,'%Y_%m_%d_%H_%M_%S')
@@ -16,7 +17,7 @@ class SystemLog(object):
         
         self.logger=logging.getLogger("{0}:{1}".format(commit, module_name))
         self.logger.setLevel(logging.DEBUG)
-         
+        
         format = '%(asctime)s - %(levelname)s - %(name)s:%(lineno)d : %(message)s'
         formatter = logging.Formatter(format)
         

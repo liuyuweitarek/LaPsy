@@ -38,7 +38,7 @@ class Agent(object):
         return self.scripts
 
     def update(self):
-        # Keys that agents have ealready had 
+        # Keys that agents have already had 
         origin_key = [key for key, val in self.__dict__.items() if not key.startswith('__')]
         
         for key,value in DefaultAgent.__dict__.items():    

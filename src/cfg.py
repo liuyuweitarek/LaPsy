@@ -10,6 +10,7 @@ class SysMsg:
 
     NO_SCRIPT_MSG = "There is no script in the script folder. Please check script folder or the parameter \'SysPaths.SCRIPT_FOLDER.\'"
 
+
 class RobotType:
     Fake = "fake"
     Zenbo = "zenbo"
@@ -18,6 +19,9 @@ class RobotType:
 class ChitChatType:
     Echo = "echo"
     GPT_2 = "gpt-2"
+
+class NLPModel:
+    TEXTGO = 'textgo'
  
 
     

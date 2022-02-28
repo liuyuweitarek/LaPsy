@@ -1,22 +1,25 @@
-import os, rpyc, random, argparse
+import os, rpyc, random, argparse, sys
 from logger import SystemLog
 from dialogue.cores import ChatBrain
 from cfg import RobotType, ChitChatType
+
+class SpecSignals:
+    EXIT = 'EXIT'
 
 class AutoLoop:
     def __init__(self, args):
         self.Log = SystemLog(self.__class__.__name__, commit=args.agentid)
         self.agentid = args.agentid
         self.scriptlist = args.scriptlist
-        # Case 1: Single Agent / Single Robot
+        self.spec_signal = "NONE"
+        
+        '''
+        Case 1: Single Agent / Single Robot
+        '''
         # Load Agent
-        self.brain = ChatBrain(args.agentid, args.scriptlist)
-
+        self.chatbrain = ChatBrain(args.agentid, args.scriptlist, args.chitchatbot)
         # Load Robot and AutoAction
         self.load_robot(args.robot)
-        
-        # Load Chit Chat Bot
-        self.load_chitchat(args.chitchatbot)
     
     def load_robot(self, robot_type):
         if robot_type == RobotType.Zenbo:
@@ -24,7 +27,7 @@ class AutoLoop:
             from robot.Zenbo.action import ZenboAutoAction
             
             self.robot = ZenboAPI(log=self.agentid)
-            self.action = ZenboAutoAction()
+            self.action = ZenboAutoAction(self.robot)
 
         elif robot_type == RobotType.Kebbi:
             from robot.Kebbi.API.api import KebbiAPI
@@ -38,41 +41,54 @@ class AutoLoop:
             from robot.Fake.action import FakeAutoAction
             
             self.robot = FakeAPI(deafmode=False, log=self.agentid)
-            self.action = FakeAutoAction()
-
-    def load_chitchat(self, chitchat_type):
-        if chitchat_type == ChitChatType.GPT_2:
-            from chatbot.gpt2.robot import GPT2Bot
-            return GPT2Bot(log=self.agentid)
-        else:
-            from chatbot.echo.robot import EchoBot 
-            return EchoBot(log=self.agentid)
+            self.action = FakeAutoAction(self.robot)
 
     def main(self):
-        self.Log.info("Begin AutoLoop...")
+        try:
+            self.Log.info("Begin AutoLoop...")
+            heardText = self.action.execute(self.action.START)
+            while True:
+                self.Log.debug("----------Start NewLoop------------")
+                if heardText not in self.action.unrecognized_signal:
+                    self.Log.debug("Recog: {0}".format(heardText))
+                    
+                    brain_reply = self.chatbrain.getText(heardText)
+                    self.spec_signal = brain_reply['SPEC_PRIORITY']
+                    heardText = self.action.execute(brain_reply)
+                else:
+                    self.Log.debug("Unrecog: {0}".format(heardText))
+                    heardText = input("[最外層沒聽到聲音]"+ random.choice(self.action.nosoundList) + ",請回復:")
 
-        while True:
-            self.Log.debug("----------Start NewLoop------------")
-            text = input("please type:")
-            if text == "q":
-                self.robot.autochat_close(True) 
-
-            # Check if launching autoProcess succeed
-            if not self.robot.autochat_ready():
-                self.Log.info("AutoChat Process is ready...")
-                self.robot.autochat_ready(True)  
-            
-            #Close window when signaled by main thread
-            if self.robot.autochat_close(): 
-                self.Log.info("Close...Bye~")       
-                self.brain.pack_brain()
-                break
-        self.end()
-        return 
-
+                # Check if launching autoProcess succeed
+                if not self.robot.autochat_ready():
+                    self.Log.info("AutoChat Process is ready...")
+                    self.robot.autochat_ready(True)  
+                
+                #Close window when signaled by main thread
+                if self.robot.autochat_close() or self.spec_signal == SpecSignals.EXIT: 
+                    self.Log.info("Close...Bye~")       
+                    self.chatbrain.pack_brain()
+                    break
+            self.end()
+            return
+        except KeyboardInterrupt:
+            self.chatbrain.pack_brain()
+            self.Log.info("KeyInterrupt!")
+            self._exit()
+        except Exception as err:
+            self.chatbrain.pack_brain()
+            self.Log.exception("####### Exception TraceBack #######")
+            self._exit()
     def end(self):
-        self.brain.pack_brain()
+        self.chatbrain.pack_brain()
         return
+
+    def _exit(self):
+        print("Bye!~")
+        try:
+            sys.exit(1)
+        except:
+            os._exit(1)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
