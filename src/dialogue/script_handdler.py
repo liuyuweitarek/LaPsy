@@ -5,6 +5,7 @@ from logger import SystemLog
 from cfg import SysPaths, SysMsg
 from dialogue.flags import Flags
 from cfg import ChitChatType, NLPModel
+from . import util_script
 
 class TwoPath_Handdler:
     def __init__(self, use_scripts, use_bot, use_model, agent_data_path, log="TEST"):
@@ -21,14 +22,17 @@ class TwoPath_Handdler:
         
         # Load Path_1: Scripts
         self.scripts_df = self.load_scripts()
+        self.Flags = Flags()
 
         # Load Path_2: ChitChatBot
         self.bot = self.load_chitchat(use_bot)
         
         # States
         self.isDuringScript = False
+        self.nextState = {}
     def getText(self, input_text):
-        
+        error = None
+        result = {}
         # Distinguish Root or Branch
         # Branch
         if self.isDuringScript:
@@ -36,8 +40,10 @@ class TwoPath_Handdler:
         # Root
         else:
             self.Log.info("Into root")
-
-        return "Return from Handler: {0}".format(input_text)
+            error, available_scripts_df = util_script.db_find_available_root(self.scripts_df)
+            error, most_similar_dict = util_script.db_eval_root(input_text, available_scripts_df,self.model)
+            
+        return most_similar_dict
     def load_model(self, nlp_model):
         if nlp_model == NLPModel.TEXTGO:
             from dialogue.model.textgo.util_textgo import TextGoModel

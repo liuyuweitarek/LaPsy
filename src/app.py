@@ -52,7 +52,7 @@ class AutoLoop:
                 if heardText not in self.action.unrecognized_signal:
                     self.Log.debug("Recog: {0}".format(heardText))
                     
-                    brain_reply = self.chatbrain.getText(heardText)
+                    brain_reply = self.chatbrain.getText(heardText[0])
                     self.spec_signal = brain_reply['SPEC_PRIORITY']
                     heardText = self.action.execute(brain_reply)
                 else:

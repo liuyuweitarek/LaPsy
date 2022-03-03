@@ -49,5 +49,5 @@ class ChatBrain:
         return
     
     def getText(self, input_text):
-        self.strategy_handler.getText(input_text)
-        return
+        brain_reply = self.strategy_handler.getText(input_text)
+        return brain_reply
