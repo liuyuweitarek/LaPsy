@@ -46,15 +46,15 @@ class AutoLoop:
     def main(self):
         try:
             self.Log.info("Begin AutoLoop...")
-            heardText = self.action.execute(self.action.START)
+            reply = self.action.execute(self.action.START)
             while True:
                 self.Log.debug("----------Start NewLoop------------")
-                if heardText not in self.action.unrecognized_signal:
-                    self.Log.debug("Recog: {0}".format(heardText))
+                if reply.text not in self.action.unrecognized_signal:
+                    self.Log.debug("Recog: {0}".format(reply.text))
                     
-                    brain_reply = self.chatbrain.getText(heardText[0])
+                    brain_reply = self.chatbrain.getText(reply.text)
                     self.spec_signal = brain_reply['SPEC_PRIORITY']
-                    heardText = self.action.execute(brain_reply)
+                    reply = self.action.execute(brain_reply)
                 else:
                     self.Log.debug("Unrecog: {0}".format(heardText))
                     heardText = input("[最外層沒聽到聲音]"+ random.choice(self.action.nosoundList) + ",請回復:")

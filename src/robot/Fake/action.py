@@ -2,7 +2,13 @@ from logger import SystemLog
 from robot.Fake.API.api import FakeError
 from dialogue.flags import Flags
 import random
- 
+
+class ActionReply:
+    def __init__(self, **kwargs):
+        for attr, val in kwargs.items():
+            setattr(self, attr, val)
+        
+
 class FakeAutoAction:
     def __init__(self, client):
         self.Log = SystemLog(self.__class__.__name__, commit=client.agentid)
@@ -40,13 +46,16 @@ class FakeAutoAction:
         
         if self.ACTION_TYPE == '1':
             self._only_say()
-            return " ", " "
+            reply = ActionReply()
+            return reply
         elif self.ACTION_TYPE == '2':
             _outputText, _wavFilePath = self._say_and_listen()
+            reply = ActionReply(text=_outputText, wavfile=_wavFilePath)
             return _outputText, _wavFilePath
         else:
             self.Log.debug("No action ... ?!")
-    
+            reply = ActionReply()
+            return reply
     def _only_say(self):
         self.Log.debug("_only_say")
         self.client.setconfig(self.VOLUME, self.SPEED, self.PITCH)
